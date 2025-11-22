@@ -132,7 +132,6 @@ Align context text ↔ fused item embedding.
 | Popularity   | 0.06      | 0.12      | 0.48     |
 | item2vec     | 0.19      | 0.28      | 0.66     |
 | MF           | 0.13      | 0.20      | 0.61     |
-| FPMC         | 0.25      | 0.40      | 0.71     |
 | **BLAIR-MM** | **0.32**  | **0.46**  | **0.75** |
 
 ---
@@ -174,24 +173,41 @@ project/
 │
 ├── README.md
 ├── workbook.html          # exported notebook
-├── notebooks/
-│   ├── data_eda.ipynb
-│   ├── multimodal_blairemm_training.ipynb
-│   ├── fpmc_evaluation.ipynb
+├── video_url.txt          # Google Drive / YouTube link
 │
 ├── src/
-│   ├── data_loading.py
-│   ├── text_encoder.py
-│   ├── image_encoder.py
-│   ├── fusion_module.py
-│   ├── contrastive_loss.py
-│   ├── evaluate.py
+│   ├── __init__.py
+│   │
+│   ├── baselines/
+│   │   ├── item2vec.py
+│   │   ├── mf.py
+│   │   └── popularity.py
+│   │
+│   ├── blairmm/
+│   │   ├── contrastive.py
+│   │   ├── fusion.py
+│   │   ├── image_encoder.py
+│   │   ├── text_encoder.py
+│   │   └── train_blairmm.py
+│   │
+│   ├── data/
+│   │   ├── dataset_loader.py
+│   │   ├── preprocess_images.py
+│   │   ├── preprocess_text.py
+│   │   └── sequence_split.py
+│   │
+│   ├── evaluation/
+│   │   ├── evaluator.py
+│   │   └── metrics.py
+│   │
+│   └── recommenders/
+│       ├── scorer_blairmm.py
+│       ├── scorer_fpmc.py
+│       ├── scorer_item2vec.py
+│       └── scorer_mf.py
 │
-├── video_url.txt          # Google Drive / YouTube link
-└── figures/
-    ├── architecture.png
-    ├── recall_results.png
-    └── tsne_embeddings.png
+└── test/
+    └── metrics.py
 ```
 
 ---
