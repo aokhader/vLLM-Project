@@ -1,4 +1,4 @@
-# 🌟 **README: Multi-Modal Next-Item Recommendation using BLAIR-MM (Text + Image Embeddings)**
+# 🌟 **Multi-Modal Next-Item Recommendation using BLAIR-MM (Text + Image Embeddings)**
 
 ## UCSD – DSC 256: Recommender Systems & Web Mining
 
