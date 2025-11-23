@@ -172,39 +172,24 @@ Align context text ↔ fused item embedding.
 project/
 │
 ├── README.md
-├── workbook.html          # exported notebook
-├── video_url.txt          # Google Drive / YouTube link
+├── workbook.html                      # exported Jupyter notebook
+├── video_url.txt                      # link to 20-minute presentation
+│
+├── notebooks/
+│   ├── 01_eda.ipynb                   # data exploration + preprocessing
+│   ├── 02_baselines.ipynb             # Popularity, MF, item2vec baselines
+│   ├── 03_multimodal_training.ipynb   # CLIP + BLAIR fusion model (BLAIR-MM)
+│   ├── 04_evaluation.ipynb            # comparison of baselines vs. BLAIR-MM
 │
 ├── src/
-│   ├── __init__.py
-│   │
-│   ├── baselines/
-│   │   ├── item2vec.py
-│   │   ├── mf.py
-│   │   └── popularity.py
-│   │
-│   ├── blairmm/
-│   │   ├── contrastive.py
-│   │   ├── fusion.py
-│   │   ├── image_encoder.py
-│   │   ├── text_encoder.py
-│   │   └── train_blairmm.py
-│   │
-│   ├── data/
-│   │   ├── dataset_loader.py
-│   │   ├── preprocess_images.py
-│   │   ├── preprocess_text.py
-│   │   └── sequence_split.py
-│   │
-│   ├── evaluation/
-│   │   ├── evaluator.py
-│   │   └── metrics.py
-│   │
-│   └── recommenders/
-│       ├── scorer_blairmm.py
-│       ├── scorer_fpmc.py
-│       ├── scorer_item2vec.py
-│       └── scorer_mf.py
+│   ├── data_utils.py                  # data loading, text + image preprocessing, user sequences
+│   ├── baseline_models.py             # Popularity, MF, item2vec implementations
+│   ├── clip_encoder.py                # CLIP-based image embedding wrapper
+│   ├── blair_encoder.py               # BLAIR text encoder wrapper
+│   ├── fusion_model.py                # fuse CLIP + BLAIR embeddings into multimodal item vectors
+│   ├── contrastive_training.py        # InfoNCE contrastive training loop for BLAIR-MM
+│   ├── recommenders.py                # scoring functions for baseline + multimodal recommenders
+│   ├── evaluation.py                  # Recall@K, AUC, cold-start, nearest-neighbor evaluation
 │
 └── test/
     └── metrics.py
