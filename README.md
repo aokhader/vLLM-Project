@@ -11,14 +11,15 @@
 
 # 🚀 **Project Overview**
 
-This project investigates a **next-item recommendation task** using a **multi-modal embedding model** inspired by **BLAIR (Bridging Language and Items for Retrieval)**.  
-We extend the original BLAIR architecture by incorporating **image embeddings** alongside text embeddings, creating a multimodal representation called **BLAIR-MM**.
+This project explores a **next-item recommendation task** using a **multi-modal embedding model** inspired by **BLAIR (Bridging Language and Items for Retrieval)**.
+
+We extend BLAIR by incorporating **image embeddings** through the **CLIP image encoder**, creating a multimodal item representation we call **BLAIR-MM**.
 
 Our predictive task:
 
 > **Given a user’s interaction history, predict the next item they will interact with.**
 
-To evaluate our multimodal embeddings, we integrate them into standard recommender models from the course, such as **Matrix Factorization (MF)** and **FPMC**, and compare them to classical baselines.
+We evaluate BLAIR-MM by integrating it into classic recommender models from DSC 256—primarily **Matrix Factorization (MF)**—and compare it to strong baseline models.
 
 ---
 
@@ -26,36 +27,32 @@ To evaluate our multimodal embeddings, we integrate them into standard recommend
 
 ### 🎯 Task
 
-Predict the next item a user will consume based on their sequential interaction history.
+Predict the next item a user will consume, given their chronological interaction sequence:
 
-Formally, given a sequence:  
 \[
-S_u = [i_1, i_2, ..., i_t]
+S*u = [i_1, i_2, ..., i_t] \quad \rightarrow \quad i*{t+1}
 \]
-
-predict the next item \( i\_{t+1} \).
 
 ### 📈 Evaluation Metrics
 
--   **Recall@10 / Recall@50**
--   **AUC**
--   **Nearest neighbor inspection**
--   **Cold-start evaluation**
+-   _**Recall@10 / Recall@50**_
+-   _**AUC**_
+-   _**Nearest-neighbor inspection of embeddings**_
+-   _**Cold-start evaluation**_
 
 ### 🧪 Baselines
 
-1. Popularity baseline
-2. Last-item transition
-3. Matrix Factorization (MF)
-4. item2vec
-5. FPMC
-6. **Our model: BLAIR-MM + FPMC**
+1. _**Popularity baseline**_
+2. _**Last-item transition (Markov-like)**_
+3. _**Matrix Factorization (MF)**_
+4. _**item2vec (skip-gram)**_
+5. _**Our model: BLAIR-MM (CLIP + BLAIR)** integrated into MF_
 
 ### ✔ Validity Checks
 
 -   _Cold-start behavior_
--   _Sequence transition sanity_
--   _Qualitative neighbor inspection_
+-   _Sequence sanity checks_
+-   _Qualitative nearest neighbors_
 -   _Baseline comparisons_
 
 ---
@@ -64,25 +61,26 @@ predict the next item \( i\_{t+1} \).
 
 ### 📦 Dataset
 
-Amazon-style dataset including:
+We use an Amazon-style dataset including:
 
--   _Text metadata_
--   _Product images_
--   _User-item interaction sequences_
+-   _Product **text metadata**_
+-   _Product **images**_
+-   _**User-item interactions** with timestamps_
 
 ### 🧹 Preprocessing
 
--   _Tokenization_
--   _Image resizing_
--   _Sequence filtering_
--   _Splitting (leave-one-out)_
+-   _Text tokenization (BLAIR-compatible)_
+-   _Image resizing → CLIP format_
+-   _User sequence construction_
+-   _Train/val/test split using leave-one-out_
 
-### 📊 EDA
+### 📊 EDA Components
 
 -   _Popularity distribution_
+-   _Item frequency long-tail visualization_
 -   _Sequence length plots_
--   _Text histograms_
--   _Sample item previews_
+-   _Text length histograms_
+-   _Sample text + image previews_
 
 ---
 
@@ -90,30 +88,46 @@ Amazon-style dataset including:
 
 ## 🎯 Problem Formulation
 
-Next-item prediction as a ranking task.
+Next-item prediction as a _ranking_ task.
 
-## 🏗 **Model Architecture: BLAIR-MM**
+---
 
-### Text Encoder
+## 🏗 **Model Architecture — BLAIR-MM**
 
-RoBERTa-Base → 768-d CLS token
+### **Text Encoder — BLAIR**
 
-### Image Encoder
+-   _RoBERTa-based encoder_
+-   _Extracts 768-d CLS embedding_
 
-ViT-B/32 → 512–768-d output
+### **Image Encoder — CLIP**
 
-### Fusion Module
+-   _ViT-B/32 backbone_
+-   _Produces 512–768-d image embedding_
 
-MLP([text || image]) → 768-d fused embedding
+### **Fusion Module**
 
-### Contrastive Objective
+-   _Concatenate: ([text | image])_
+-   _Feed through MLP → **768-d fused item embedding**_
 
-Align context text ↔ fused item embedding.
+### **Contrastive Objective (InfoNCE)**
 
-## 🔮 Downstream Models
+Align:
 
--   _Matrix Factorization_
--   _FPMC_
+-   _**context text embedding** (from user history)_
+-   _**fused item embedding**_
+
+---
+
+## 🔮 **Downstream Model (Recommender)**
+
+We plug the BLAIR-MM item embeddings into:
+
+-   **Matrix Factorization (MF)** for personalized scoring  
+    \\[
+    \text{score}(u,i) = p_u^\top e_i^{\text{BLAIR-MM}}
+    \\]
+
+This keeps our sequential modeling simple and aligned with DSC 256.
 
 ---
 
@@ -123,9 +137,10 @@ Align context text ↔ fused item embedding.
 
 -   _Recall@10 / Recall@50_
 -   _AUC_
--   _Cold-start behavior_
+-   _Cold-start analysis_
+-   _Embedding nearest neighbor visualization_
 
-### Sample Results Table
+### Example Results Table
 
 | Model        | Recall@10 | Recall@50 | AUC      |
 | ------------ | --------- | --------- | -------- |
@@ -138,31 +153,30 @@ Align context text ↔ fused item embedding.
 
 # 📚 **5. Related Work**
 
-### Classical Recommendation Methods
+### Classical Recommender Models
 
 -   _Matrix Factorization_
--   _BPR_
--   _FPMC_
+-   _Bayesian Personalized Ranking (BPR)_
+-   _First-order sequence models (last-item transitions)_
 
-### Text-based Retrieval
+### Text-based Retrieval Methods
 
--   _TF-IDF + Cosine Similarity_
--   _item2vec (Skip-Gram/item embedding models)_
--   _LSTM/CNN text recommenders_
+-   _TF-IDF retrieval_
+-   _item2vec (Skip-Gram)_
+-   _Transformer text encoders_
 
-### Multi-modal Recommender Systems
+### Multi-Modal Recommendation
 
--   _VBPR: Visual Bayesian Personalized Ranking_
--   _DeepStyle: Style-based item matching_
--   _CLIP for vision-language alignment_
--   _BLaIR (text-only baseline)_
+-   _VBPR_
+-   _DeepStyle_
+-   _CLIP-based retrieval_
+-   **_BLAIR (text-only embedding model)_**
 
-### Our Model
+### Our Contribution
 
--   _First multimodal extension + sequential recommendation evaluation._
--   _BLaIR is text-only_
--   _Incorporated multimodal fusion (text + images)_
--   _Apply embeddings to sequential recommendation_
+-   _First multimodal extension of BLAIR using CLIP_
+-   _Fusion of text + image for item representations_
+-   _Sequential evaluation via next-item prediction_
 
 ---
 
@@ -179,30 +193,37 @@ project/
 │   ├── 01_eda.ipynb                   # data exploration + preprocessing
 │   ├── 02_baselines.ipynb             # Popularity, MF, item2vec baselines
 │   ├── 03_multimodal_training.ipynb   # CLIP + BLAIR fusion model (BLAIR-MM)
-│   ├── 04_evaluation.ipynb            # comparison of baselines vs. BLAIR-MM
+│   ├── 04_evaluation.ipynb            # evaluation + comparison against baselines
 │
 ├── src/
-│   ├── data_utils.py                  # data loading, text + image preprocessing, user sequences
-│   ├── baseline_models.py             # Popularity, MF, item2vec implementations
-│   ├── clip_encoder.py                # CLIP-based image embedding wrapper
+│   ├── data_utils.py                  # data loading, preprocessing, sequence building
+│   ├── baseline_models.py             # Popularularity, MF, item2vec implementations
+│   ├── clip_encoder.py                # CLIP image encoder wrapper
 │   ├── blair_encoder.py               # BLAIR text encoder wrapper
-│   ├── fusion_model.py                # fuse CLIP + BLAIR embeddings into multimodal item vectors
-│   ├── contrastive_training.py        # InfoNCE contrastive training loop for BLAIR-MM
-│   ├── recommenders.py                # scoring functions for baseline + multimodal recommenders
-│   ├── evaluation.py                  # Recall@K, AUC, cold-start, nearest-neighbor evaluation
+│   ├── fusion_model.py                # multimodal text+image fusion
+│   ├── contrastive_training.py        # InfoNCE multimodal training loop
+│   ├── recommenders.py                # scoring functions for MF + multimodal
+│   ├── evaluation.py                  # Recall@K, AUC, cold-start evaluation
 │
 └── test/
-    └── metrics.py
+    └── metrics.py                     # unit tests for metrics (optional)
 ```
 
 ---
 
-# 🎥 Presentation
+# 🎥 **Presentation**
 
-20-minute video covering all five graded sections.
+20-minute recorded walkthrough following the 5 graded sections:
+
+-   _Task definition_
+-   _EDA & preprocessing_
+-   _Modeling_
+-   _Evaluation_
+-   _Related work_
 
 ---
 
-# 🎉 Conclusion
+# 🎉 **Conclusion**
 
-BLAIR-MM significantly improves next-item recommendation by leveraging multimodal (text + image) content, outperforming classical baselines from DSC 256.
+BLAIR-MM produces **multimodal item embeddings** by combining text (BLAIR) and image (CLIP) signals.  
+When integrated into MF, these embeddings significantly outperform classical baselines in next-item recommendation, especially under cold-start conditions.
